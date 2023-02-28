@@ -1,0 +1,23 @@
+/* Sprite sheet is 680 X 248   ,   1360 x 496*/
+ /* .proba{
+  background-image: url("SpriteSheet.png");
+  height: 248px;
+  width: 680px;
+  } */
+  .mainBoard {
+    margin: auto;
+    width: 50%;
+    width: 453px;
+    height: 496px;
+    background: url("SpriteSheet.v1.png") -453px 0px;
+  }
+  
+  .pacman {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    background: url("SpriteSheet.v1.png") -910px 0px;
+  }
+  
