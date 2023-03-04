@@ -1,4 +1,4 @@
-
+/*spritesheet is 1646 x 600 px*/
 body {
   background-color: black;
 }
@@ -6,9 +6,9 @@ body {
 #mainBoard {
   
   margin: auto;
-  width: 453px;
-  height: 496px;
-  background: url("SpriteSheet.v1.png") -453px 0px; /*izrqzwame SpriteSheet za mapa*/
+  width: 548px;
+  height: 600px;
+  background: url("SpriteSheet.v1.png") -548px 0px; /* cutting the sprite sheet*/
  
 }
 
@@ -23,12 +23,12 @@ body {
   padding: 0px;
 } */
 
-.pacman {
+/* .pacman {
   position: absolute;
   
   width: 30px;
   height: 30px;
-  background: url("SpriteSheet.v1.png") -910px 0px;  /*izrqzwame SpriteSheet za pacman*/
-}
+  background: url("SpriteSheet.v1.png") -1097px 0px; 
+} */
 
   
