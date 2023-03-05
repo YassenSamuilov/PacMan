@@ -5,8 +5,7 @@ var sizeY = 31; // Y of MapArray , how many cells will be there on every column
 var cellSizeX = 19.57; //size of the widht of cells in pixels         !! the map is not a square therefore the cells will not be the squares !!
 var cellSizeY = 19.35; //size of the height of cells in pixels
 var MapArray = [];  // array of cells, for the movement and position of the pacman character and the ghosts
-var direction = [] //direction of pacman when a key is pressed
-direction.push("left")
+var direction = "left" //direction of pacman when a key is pressed
 //all coordinates where the pacman and the ghost can be, aka the route
 var possibleCellsToMoveTo = [ 
   {x: 1, y: 1}, {x: 1, y: 2}, {x: 1, y: 3}, {x: 1, y: 4}, {x: 1, y: 5},
@@ -82,9 +81,13 @@ var possibleCellsToMoveTo = [
 { x: 12, y: 3}, { x: 12, y: 4}, { x: 15, y: 2}, { x: 15, y: 3},
 { x: 15, y: 4}, { x: 15, y: 21}, { x: 15, y: 22}, { x: 12, y: 21}, { x: 12, y: 22},
 { x: 24, y: 24}, { x: 24, y: 25}, { x: 3, y: 24}, { x: 3, y: 25}, { x: 12, y: 10},
-{ x: 12, y: 9}, { x: 15, y: 10}, { x: 15, y: 9}, { x: 13, y: 12},
-{ x: 13, y: 13}, { x: 14, y: 12}, { x: 14, y: 13},
+{ x: 12, y: 9}, { x: 15, y: 10}, { x: 15, y: 9},
+{ x: 13, y: 13},  { x: 14, y: 13},
 { x: 26, y: 2},{ x: 26, y: 3},{ x: 26, y: 4},{ x: 26, y: 6},{ x: 26, y: 7},
+//coordinates for the tunnel
+{ x: 0, y: 14},{ x: 27, y: 14}, 
+//coordinates for the center's gate
+{ x: 13, y: 12},{ x: 14, y: 12}
 ];
 //function that returns whether the desired location is allowed
 function isItPossibleToMove(a, b) {
@@ -104,18 +107,14 @@ class Pacman {
   this.x=x; this.y=y; //pacman has a x and y of the MapArray
 }
 //function that takes the argument direction(left, right, top, down), checks wether the new move is allowed, for example up will be y-1, deletes pacman and draws it on the new location
-movement(direction ){
-  switch(direction [direction.length-1]){
+movement(direction){
+  switch(direction){
     case "left" :
       if(isItPossibleToMove(this.x-1, this.y)){
         MapArray[this.x][this.y].style.removeProperty("background");
         this.x--;
         this.display();
-       }
-       
-      //else if(isItPossibleToMove(direction[direction.length-2].x,direction[direction.length-2].y,)){
-      //      this.movement(direction[direction.length-1].pop());
-      // }
+      }
       break;
     case "up" :
       if(isItPossibleToMove(this.x, this.y-1)){
@@ -160,12 +159,12 @@ for (let x = 0; x < sizeX; x++) {
         MapArray[x][y].style.marginLeft = `${(x*cellSizeX)+marginMap}px` // y of a cell times the X cell size we want plus the margin(because of the walls), so that cell 2,3... are next to cell 1
         MapArray[x][y].style.marginTop = `${(y*cellSizeY)}px`  //x of a cell times the Y cell size we want 
         MapArray[x][y].style.borderStyle = "solid";  // borderis solid
-        MapArray[x][y].style.borderWidth = "0px";  //border's widht 1px
+        MapArray[x][y].style.borderWidth = "1px";  //border's widht 1px
         MapArray[x][y].style.padding = "0px";  //nopadding
         MapArray[x][y].style.position = "absolute"; //position is absolute
         MapArray[x][y].style.borderColor = "green";  //color of the border is red so that we can visualise them for now 
           if(isItPossibleToMove(x,y)){
-            //MapArray[x][y].style.backgroundColor = "red";
+            MapArray[x][y].style.backgroundColor = "red";
           }
         mainBoard.appendChild(MapArray[x][y]);  // creating the div
     }
@@ -179,16 +178,20 @@ document.addEventListener("keydown", (event) => {
   var key = event.code;
   switch(key){
     case "ArrowUp":
-      direction.push("up");
+      if(isItPossibleToMove(pacman.x, pacman.y-1)){ direction ="up";}
+     
       break;
       case "ArrowDown":
-        direction.push("down");
+        if(isItPossibleToMove(pacman.x, pacman.y+1)){direction ="down";}
+      
       break;
       case "ArrowLeft":
-        direction.push("left");
+        if(isItPossibleToMove(pacman.x-1, pacman.y)){direction ="left";}
+      
       break;
       case "ArrowRight":
-        direction.push("right");
+        if(isItPossibleToMove(pacman.x+1, pacman.y)){direction ="right";}
+      
       break;
         
   }
