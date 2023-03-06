@@ -87,7 +87,7 @@ var possibleCellsToMoveTo = [
 //coordinates for the tunnel
 { x: 0, y: 14},{ x: 27, y: 14}, 
 //coordinates for the center's gate
-{ x: 13, y: 12},{ x: 14, y: 12}
+//{ x: 13, y: 12},{ x: 14, y: 12}
 ];
 //function that returns whether the desired location is allowed
 function isItPossibleToMove(a, b) {
@@ -106,47 +106,122 @@ class Pacman {
   constructor( x,  y){
   this.x=x; this.y=y; //pacman has a x and y of the MapArray
 }
-//function that takes the argument direction(left, right, top, down), checks wether the new move is allowed, for example up will be y-1, deletes pacman and draws it on the new location
+//function that takes the argument direction(left, right, top, down), checks wether the new move is allowed, 
+//for example up will be y-1, deletes pacman and draws it on the new location
 movement(direction){
   switch(direction){
     case "left" :
       if(isItPossibleToMove(this.x-1, this.y)){
         MapArray[this.x][this.y].style.removeProperty("background");
         this.x--;
-        this.display();
+        this.draw();
+      }//the else if is for the tunnel
+      else if(this.x==0){
+        MapArray[this.x][this.y].style.removeProperty("background");
+        this.x=27;
+        this.draw();
       }
       break;
     case "up" :
       if(isItPossibleToMove(this.x, this.y-1)){
         MapArray[this.x][this.y].style.removeProperty("background");
         this.y--;
-        this.display();
+        this.draw();
       }
       break;
     case "right" :
       if(isItPossibleToMove(this.x+1, this.y)){
         MapArray[this.x][this.y].style.removeProperty("background");
         this.x++;
-        this.display();
+        this.draw();
+      }//the else if is for the tunnel
+      else if(this.x==27){
+        MapArray[this.x][this.y].style.removeProperty("background");
+        this.x=0;
+        this.draw();
       }
       break;
     case "down" :
       if(isItPossibleToMove(this.x, this.y+1)){
         MapArray[this.x][this.y].style.removeProperty("background");
         this.y++;
-        this.display();
+        this.draw();
       }
       break;
   }
 }
  // function that draws the pacman to its new location
-  display() {
+  draw() {
     MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
     MapArray[this.x][this.y].style.backgroundPosition = "-1105px -1px";
   
     
   }
 }
+
+//creating the ghost class
+class Ghost {
+  constructor(x,y) {
+    this.y = y; // X and Y of the ghost
+    this.x = x;
+    this.lastMove = { x: this.x , y:this.y}; // lastmove is needed so that the pacman doesnt go back and forth, it will be removed from the possible next move
+    this.freeIndexes = []; // initialize the freeIndexes array 
+    this.hasGoneThroughTunnel = false; //checkpoint, so that the ghost goes properly through 
+  }
+
+  movement() {
+    //two ifs for the tunnel, changing hasGoneThroughTunnel so that the ghost doesnt go back and forth, 
+    //for example: he goes, he cant go back(hasGoneThroughTunnel =true), he goes x+-, and when he comes back hasGoneThroughTunnel is again false and he can go through
+    if(this.x==27  && this.hasGoneThroughTunnel ==false){
+      MapArray[this.x][this.y].style.removeProperty("background");
+      this.x=0; this.hasGoneThroughTunnel =true ;
+      this.draw();
+    }else if(this.x==0 && this.hasGoneThroughTunnel ==false){
+      MapArray[this.x][this.y].style.removeProperty("background");
+      this.x=27;  this.hasGoneThroughTunnel= true;
+      this.draw();
+            }
+            else if(this.hasGoneThroughTunnel ==false || this.hasGoneThroughTunnel ==true){ 
+      this.hasGoneThroughTunnel=false;
+      //array freeIndexes has all possible cells, the ghost can move to
+      this.freeIndexes = [];
+    if ( isItPossibleToMove(this.x+1, this.y)) {
+      this.freeIndexes.push({ x: this.x+1 , y: this.y });
+    } 
+    if ( isItPossibleToMove(this.x-1, this.y)) {
+      this.freeIndexes.push({ x: this.x-1 , y: this.y });
+    }
+    if ( isItPossibleToMove(this.x, this.y-1)) {
+      this.freeIndexes.push({ x: this.x , y: this.y-1 });
+    }
+    if ( isItPossibleToMove(this.x, this.y+1)) {
+      this.freeIndexes.push({ x: this.x , y: this.y+1 });
+    }
+    //we romove the cell he came from
+    if(this.lastMove !=null){ for(var i=0; i<this.freeIndexes.length; i++){
+       if( this.lastMove.x == this.freeIndexes[i].x && this.lastMove.y == this.freeIndexes[i].y){
+                              this.freeIndexes.splice(i,1);
+       }
+    }}  
+    // we choose a random cell of the possible ones, lastMove records the location,we delete it from the cell, we change the X and Y, and draw it on the new one
+    if (this.freeIndexes.length > 0) {
+      const randomIndex = Math.floor(Math.random() * this.freeIndexes.length);
+      const randomValue = this.freeIndexes[randomIndex];
+      this.lastMove = { x: this.x , y: this.y};
+      MapArray[this.x][this.y].style.removeProperty("background");
+      this.y = randomValue.y;
+      this.x = randomValue.x;
+      this.draw();
+      
+    }}
+  }
+  //draws the ghost
+  draw() {
+    MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
+    MapArray[this.x][this.y].style.backgroundPosition = "-1105px -160px";
+  }
+}
+
 
 // creating two dimensional array MapArray
 for (let x = 0; x < sizeX; x++) {
@@ -156,22 +231,31 @@ for (let x = 0; x < sizeX; x++) {
         
         MapArray[x][y].style.height = `${cellSizeY}px`; //height of the cell
         MapArray[x][y].style.width = `${cellSizeX}px`; //widht of the cell
-        MapArray[x][y].style.marginLeft = `${(x*cellSizeX)+marginMap}px` // y of a cell times the X cell size we want plus the margin(because of the walls), so that cell 2,3... are next to cell 1
+        MapArray[x][y].style.marginLeft = `${(x*cellSizeX)+marginMap}px` // y of a cell times the X cell size we want plus the margin(because of the walls), 
+                                                                         //so that cell 2,3... are next to cell 1
         MapArray[x][y].style.marginTop = `${(y*cellSizeY)}px`  //x of a cell times the Y cell size we want 
         MapArray[x][y].style.borderStyle = "solid";  // borderis solid
-        MapArray[x][y].style.borderWidth = "1px";  //border's widht 1px
+        MapArray[x][y].style.borderWidth = "0px";  //border's widht 1px
         MapArray[x][y].style.padding = "0px";  //nopadding
         MapArray[x][y].style.position = "absolute"; //position is absolute
         MapArray[x][y].style.borderColor = "green";  //color of the border is red so that we can visualise them for now 
           if(isItPossibleToMove(x,y)){
-            MapArray[x][y].style.backgroundColor = "red";
+           // MapArray[x][y].style.backgroundColor = "red";
           }
         mainBoard.appendChild(MapArray[x][y]);  // creating the div
     }
 }
 //creating pacman variable of the class Pacman
  var pacman = new Pacman(1,1);
- 
+let ghost1 = new Ghost(11,26)//creating the ghosts and drawing them
+let ghost2 = new Ghost(17,26)
+let ghost3 = new Ghost(18,26)
+let ghost4 = new Ghost(18,29)
+ghost1.draw();
+ghost2.draw();
+ghost3.draw();
+ghost4.draw();
+
 // eventlistener, so that when a key is pressed, that key is now the new direction
 document.addEventListener("keydown", (event) => {
 
@@ -200,4 +284,11 @@ document.addEventListener("keydown", (event) => {
 setInterval(function() {
   pacman.movement(direction);
 }, 200);
+//setInterval for the ghosts, so that they move, and the pacman is redrawned, so that when a ghosts goes through him, he will not disappear
+setInterval(function () {
+ pacman.draw()
+   ghost1.movement();
+  ghost2.movement();
+  ghost3.movement();
+  ghost4.movement();}, 100);
 
