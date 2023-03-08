@@ -230,6 +230,7 @@ class Ghost {
 }
 
 
+
 // creating two dimensional array MapArray
 for (let x = 0; x < sizeX; x++) {
   MapArray.push([]); //array gets two dimensions
@@ -287,10 +288,8 @@ document.addEventListener("keydown", (event) => {
         
   }
 });
-//moves the character every one second by executing the movement function with the argument direction(in which direction the pacman will move)
-setInterval(function() {
-  pacman.movement(direction);
-}, 200);
+
+
 //timer so that in the beggining there is timer when the other three ghosts start moving
 {setInterval(function(){
   //checks whether the ghost is insode the center and moves him one cell up
@@ -320,12 +319,33 @@ setInterval(function(){
 
 
 
-//setInterval for the ghosts, so that they move, and the pacman is redrawned, so that when a ghosts goes through him, he will not disappear
+
+
+  //moves the character by executing the movement function with the argument direction(in which direction the pacman will move), 
+  //IF the pacman location and ghost location arent the same(aka game over)
+  setInterval(function() {
+   if(!pacmanHasLost()){ 
+  pacman.movement(direction);
+    } }, 50);
+
+//setInterval for the ghosts, so that they move, and the pacman is redrawned, so that when a ghosts goes through him, he will not disappear, 
+//IF the pacman location and ghost location arent the same(aka game over)
 setInterval(function () {
+  if(!pacmanHasLost()){
  pacman.draw();
   ghost1.movement();
   ghost2.movement();
   ghost3.movement();
-  ghost4.movement();}
-  , speed);
+  ghost4.movement();
+    }
+    }, speed);
 
+ 
+
+// function to check if the pacman location is the same as that of a ghost, aka whether the game is over
+pacmanHasLost = () => {
+  if(pacman.x==ghost1.x && pacman.y==ghost1.y){return true;}
+  else if(pacman.x==ghost2.x && pacman.y==ghost2.y){return true;}
+  else if(pacman.x==ghost3.x && pacman.y==ghost3.y){return true;}
+  else if(pacman.x==ghost4.x && pacman.y==ghost4.y){return true;}else{return false;}
+}
