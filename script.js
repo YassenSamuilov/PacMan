@@ -6,6 +6,7 @@ var cellSizeX = 19.57; //size of the widht of cells in pixels         !! the map
 var cellSizeY = 19.35; //size of the height of cells in pixels
 var MapArray = [];  // array of cells, for the movement and position of the pacman character and the ghosts
 var direction = "left" //direction of pacman when a key is pressed
+var speed =100;// speed of ghosts in miliseconds
 //all coordinates where the pacman and the ghost can be, aka the route
 var possibleCellsToMoveTo = [ 
   {x: 1, y: 1}, {x: 1, y: 2}, {x: 1, y: 3}, {x: 1, y: 4}, {x: 1, y: 5},
@@ -32,7 +33,8 @@ var possibleCellsToMoveTo = [
   { x: 18, y: 5 }, { x: 19, y: 5 }, { x: 20, y: 5 }, { x: 21, y: 5 }, { x: 22, y: 5 },
   { x: 23, y: 5 }, { x: 24, y: 5 }, { x: 25, y: 5 }, { x: 26, y: 5 }, { x: 2, y: 14 },
   { x: 3, y: 14 }, { x: 4, y: 14 }, { x: 5, y: 14 }, { x: 6, y: 14 }, { x: 7, y: 14 },
-  { x: 8, y: 14 }, { x: 9, y: 14 }, { x: 12, y: 14 }, { x: 15, y: 14 }, { x: 18, y: 14 },
+  { x: 8, y: 14 }, { x: 9, y: 14 }, 
+  { x: 18, y: 14 },
   { x: 19, y: 14 }, { x: 20, y: 14 }, { x: 21, y: 14 }, { x: 22, y: 14 }, { x: 23, y: 14 },
   { x: 24, y: 14 }, { x: 25, y: 14 }, { x: 26, y: 14 }, { x: 2, y: 20 }, { x: 3, y: 20 },
   { x: 4, y: 20 }, { x: 5, y: 20 },
@@ -54,7 +56,7 @@ var possibleCellsToMoveTo = [
 {x: 18, y: 12}, {x: 18, y: 13}, {x: 18, y: 14}, {x: 18, y: 15}, {x: 18, y: 16},
 {x: 18, y: 17}, {x: 18, y: 18}, {x: 18, y: 19}, {x: 18, y: 20}, {x: 18, y: 23},
 {x: 18, y: 24}, {x: 18, y: 25}, {x: 18, y: 26}, {x: 18, y: 29}, {x: 14, y: 5},
-{x: 13, y: 5}, {x: 14, y: 14}, {x: 13, y: 14}, {x: 14, y: 11}, {x: 13, y: 11},
+{x: 13, y: 5}, 
 {x: 12, y: 11}, {x: 11, y: 11}, {x: 10, y: 11}, {x: 15, y: 11}, {x: 16, y: 11},
 {x: 17, y: 11}, {x: 10, y: 11}, {x: 11, y: 17}, {x: 12, y: 17}, {x: 13, y: 17},
 {x: 14, y: 17}, {x: 15, y: 17}, {x: 16, y: 17}, {x: 17, y: 17}, {x: 10, y: 17},
@@ -80,10 +82,11 @@ var possibleCellsToMoveTo = [
 { x: 2, y: 23}, { x: 3, y: 23}, { x: 7, y: 23}, { x: 8, y: 23}, { x: 12, y: 2},
 { x: 12, y: 3}, { x: 12, y: 4}, { x: 15, y: 2}, { x: 15, y: 3},
 { x: 15, y: 4}, { x: 15, y: 21}, { x: 15, y: 22}, { x: 12, y: 21}, { x: 12, y: 22},
-{ x: 24, y: 24}, { x: 24, y: 25}, { x: 3, y: 24}, { x: 3, y: 25}, { x: 12, y: 10},
-{ x: 12, y: 9}, { x: 15, y: 10}, { x: 15, y: 9},
-{ x: 13, y: 13},  { x: 14, y: 13},
-{ x: 26, y: 2},{ x: 26, y: 3},{ x: 26, y: 4},{ x: 26, y: 6},{ x: 26, y: 7},
+{ x: 24, y: 24}, { x: 24, y: 25}, { x: 3, y: 24}, { x: 3, y: 25}, { x: 12, y: 10},{x: 14, y: 11}, {x: 13, y: 11},
+{ x: 12, y: 9}, { x: 15, y: 10}, { x: 15, y: 9},{ x: 26, y: 2},{ x: 26, y: 3},{ x: 26, y: 4},{ x: 26, y: 6},{ x: 26, y: 7},
+//center coordinates
+//{ x: 13, y: 13},  { x: 14, y: 13},//{ x: 12, y: 14 }, //{ x: 15, y: 14 }, 
+//{x: 14, y: 14}, {x: 13, y: 14}, 
 //coordinates for the tunnel
 { x: 0, y: 14},{ x: 27, y: 14}, 
 //coordinates for the center's gate
@@ -173,11 +176,11 @@ class Ghost {
     //two ifs for the tunnel, changing hasGoneThroughTunnel so that the ghost doesnt go back and forth, 
     //for example: he goes, he cant go back(hasGoneThroughTunnel =true), he goes x+-, and when he comes back hasGoneThroughTunnel is again false and he can go through
     if(this.x==27  && this.hasGoneThroughTunnel ==false){
-      MapArray[this.x][this.y].style.removeProperty("background");
+      this.delete();
       this.x=0; this.hasGoneThroughTunnel =true ;
       this.draw();
     }else if(this.x==0 && this.hasGoneThroughTunnel ==false){
-      MapArray[this.x][this.y].style.removeProperty("background");
+      this.delete();
       this.x=27;  this.hasGoneThroughTunnel= true;
       this.draw();
             }
@@ -208,12 +211,16 @@ class Ghost {
       const randomIndex = Math.floor(Math.random() * this.freeIndexes.length);
       const randomValue = this.freeIndexes[randomIndex];
       this.lastMove = { x: this.x , y: this.y};
-      MapArray[this.x][this.y].style.removeProperty("background");
+      this.delete();
       this.y = randomValue.y;
       this.x = randomValue.x;
       this.draw();
       
     }}
+  }
+  //deletes the image from the cell
+  delete(){
+    MapArray[this.x][this.y].style.removeProperty("background");
   }
   //draws the ghost
   draw() {
@@ -240,17 +247,17 @@ for (let x = 0; x < sizeX; x++) {
         MapArray[x][y].style.position = "absolute"; //position is absolute
         MapArray[x][y].style.borderColor = "green";  //color of the border is red so that we can visualise them for now 
           if(isItPossibleToMove(x,y)){
-           // MapArray[x][y].style.backgroundColor = "red";
+            //MapArray[x][y].style.backgroundColor = "red";
           }
         mainBoard.appendChild(MapArray[x][y]);  // creating the div
     }
 }
 //creating pacman variable of the class Pacman
  var pacman = new Pacman(1,1);
-let ghost1 = new Ghost(11,26)//creating the ghosts and drawing them
-let ghost2 = new Ghost(17,26)
-let ghost3 = new Ghost(18,26)
-let ghost4 = new Ghost(18,29)
+let ghost1 = new Ghost(13,11)//creating the ghosts and drawing them
+let ghost2 = new Ghost(13,13)
+let ghost3 = new Ghost(14,13)
+let ghost4 = new Ghost(14,14)
 ghost1.draw();
 ghost2.draw();
 ghost3.draw();
@@ -284,11 +291,41 @@ document.addEventListener("keydown", (event) => {
 setInterval(function() {
   pacman.movement(direction);
 }, 200);
+//timer so that in the beggining there is timer when the other three ghosts start moving
+{setInterval(function(){
+  //checks whether the ghost is insode the center and moves him one cell up
+  if(ghost2.x==13 &&(ghost2.y==13 ||ghost2.y==12)){
+    ghost2.delete();
+    ghost2.y=11;
+    ghost2.draw();
+  }},3000)
+
+setInterval(function(){
+    if(ghost3.x==14 &&(ghost3.y==13 ||ghost3.y==12)){
+      ghost3.delete();
+    ghost3.y=11;
+    ghost3.draw();
+    }
+  },6000)
+//checks whether the ghost is insode the center and moves him one cell up, but by the normal speed, the outer setInterval is executed once, the inside twice
+  setInterval(function(){
+    setInterval(function () {
+     if(ghost4.x==14 &&(ghost4.y==13 ||ghost4.y==12 ||ghost4.y==14)){
+      ghost4.delete();
+    ghost4.y--;
+    ghost4.draw();
+  }}, speed);
+  },9000)}
+
+
+
+
 //setInterval for the ghosts, so that they move, and the pacman is redrawned, so that when a ghosts goes through him, he will not disappear
 setInterval(function () {
- pacman.draw()
-   ghost1.movement();
+ pacman.draw();
+  ghost1.movement();
   ghost2.movement();
   ghost3.movement();
-  ghost4.movement();}, 100);
+  ghost4.movement();}
+  , speed);
 
