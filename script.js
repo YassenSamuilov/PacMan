@@ -1,5 +1,5 @@
 var mainBoard = document.getElementById('mainBoard'); // variable to access mainBoard class
-var marginMap = 1; //this is the margin in pixels, for the position of the cells, because there are walls at the top left corner so the cells cant start there
+var marginMap = 3; //this is the margin in pixels, for the position of the cells, because there are walls at the top left corner so the cells cant start there
 var sizeX = 28;  // X of MapArray , how many cells will be there on every row
 var sizeY = 31; // Y of MapArray , how many cells will be there on every column
 var cellSizeX = 19.57; //size of the widht of cells in pixels         !! the map is not a square therefore the cells will not be the squares !!
@@ -7,6 +7,9 @@ var cellSizeY = 19.35; //size of the height of cells in pixels
 var MapArray = [];  // array of cells, for the movement and position of the pacman character and the ghosts
 var direction = "left" //direction of pacman when a key is pressed
 var speed =100;// speed of ghosts in miliseconds
+const eatenCoins = [];//array with the coordinates of the eaten coins
+const bigCoins = [{
+  x :1 , y :2},{}]
 //all coordinates where the pacman and the ghost can be, aka the route
 var possibleCellsToMoveTo = [ 
   {x: 1, y: 1}, {x: 1, y: 2}, {x: 1, y: 3}, {x: 1, y: 4}, {x: 1, y: 5},
@@ -115,38 +118,38 @@ movement(direction){
   switch(direction){
     case "left" :
       if(isItPossibleToMove(this.x-1, this.y)){
-        MapArray[this.x][this.y].style.removeProperty("background");
+        this.delete();
         this.x--;
         this.draw();
       }//the else if is for the tunnel
       else if(this.x==0){
-        MapArray[this.x][this.y].style.removeProperty("background");
+        this.delete();
         this.x=27;
         this.draw();
       }
       break;
     case "up" :
       if(isItPossibleToMove(this.x, this.y-1)){
-        MapArray[this.x][this.y].style.removeProperty("background");
+        this.delete();
         this.y--;
         this.draw();
       }
       break;
     case "right" :
       if(isItPossibleToMove(this.x+1, this.y)){
-        MapArray[this.x][this.y].style.removeProperty("background");
+        this.delete();
         this.x++;
         this.draw();
       }//the else if is for the tunnel
       else if(this.x==27){
-        MapArray[this.x][this.y].style.removeProperty("background");
+        this.delete();
         this.x=0;
         this.draw();
       }
       break;
     case "down" :
       if(isItPossibleToMove(this.x, this.y+1)){
-        MapArray[this.x][this.y].style.removeProperty("background");
+        this.delete();
         this.y++;
         this.draw();
       }
@@ -157,8 +160,12 @@ movement(direction){
   draw() {
     MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
     MapArray[this.x][this.y].style.backgroundPosition = "-1105px -1px";
-  
-    
+  }
+   //deletes the image from the cell
+   delete(){
+    MapArray[this.x][this.y].style.removeProperty("background");
+    MapArray[this.x][this.y].style.backgroundColor= "black";
+    eatenCoins.push({x:this.x , y:this.y});
   }
 }
 
@@ -218,10 +225,28 @@ class Ghost {
       
     }}
   }
-  //deletes the image from the cell
-  delete(){
-    MapArray[this.x][this.y].style.removeProperty("background");
-  }
+  //deletes the image from the cell. and if the coin is eaten the background color is black
+  
+    delete(){
+      var alreadyEaten = () => {
+        for (var index in eatenCoins) {
+          if (this.x == eatenCoins[index].x && this.y == eatenCoins[index].y) {
+            return true;
+          }
+        }
+        return false;
+      };
+      
+      if (alreadyEaten()) {
+        MapArray[this.x][this.y].style.removeProperty("background");
+        MapArray[this.x][this.y].style.backgroundColor= "black";
+        eatenCoins.push({x:this.x , y:this.y});
+      }else{
+        MapArray[this.x][this.y].style.removeProperty("background");
+      }
+    }
+   
+  
   //draws the ghost
   draw() {
     MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
@@ -248,7 +273,7 @@ for (let x = 0; x < sizeX; x++) {
         MapArray[x][y].style.position = "absolute"; //position is absolute
         MapArray[x][y].style.borderColor = "green";  //color of the border is red so that we can visualise them for now 
           if(isItPossibleToMove(x,y)){
-            //MapArray[x][y].style.backgroundColor = "red";
+           // MapArray[x][y].style.backgroundColor = "red";
           }
         mainBoard.appendChild(MapArray[x][y]);  // creating the div
     }

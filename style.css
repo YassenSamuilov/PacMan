@@ -8,7 +8,7 @@ body {
   margin: auto;
   width: 548px;
   height: 600px;
-  background: url("SpriteSheet.v1.png") -548px 0px; /* cutting the sprite sheet*/
+  background: url("SpriteSheet.v1.png") 6px 0px; /* cutting the sprite sheet*/
  
 }
 
