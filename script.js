@@ -1,5 +1,5 @@
 var mainBoard = document.getElementById('mainBoard'); // variable to access mainBoard class
-var marginMap = 3; //this is the margin in pixels, for the position of the cells, because there are walls at the top left corner so the cells cant start there
+var marginMap = 2; //this is the margin in pixels, for the position of the cells, because there are walls at the top left corner so the cells cant start there
 var sizeX = 28;  // X of MapArray , how many cells will be there on every row
 var sizeY = 31; // Y of MapArray , how many cells will be there on every column
 var cellSizeX = 19.57; //size of the widht of cells in pixels         !! the map is not a square therefore the cells will not be the squares !!
@@ -8,6 +8,13 @@ var MapArray = [];  // array of cells, for the movement and position of the pacm
 var direction = "left" //direction of pacman when a key is pressed
 var speed =100;// speed of ghosts in miliseconds
 const eatenCoins = [];//array with the coordinates of the eaten coins
+var playerSize=33;// what size will the cells be when there is a ghost or the pacman in them
+var playerMargin =5;// minus what margin will the cells be when there is a ghost or the pacman in them
+
+let leftUpCornerArray = new Array(28);//creating two dimesional array for the coordinates of the left up corner of each cell
+for (let i = 0; i < leftUpCornerArray.length; i++) {
+  leftUpCornerArray[i] = new Array(31);
+}
 const bigCoins = [{
   x :1 , y :2},{}]
 //all coordinates where the pacman and the ghost can be, aka the route
@@ -156,13 +163,21 @@ movement(direction){
       break;
   }
 }
- // function that draws the pacman to its new location
+ // function that draws the pacman to its new location, and makes the cell bigger so that the pacman can fit inside 
   draw() {
+    MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x-playerMargin}px`    // new x and y, from where the cell will beggin
+    MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y-playerMargin-5}px`
     MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
-    MapArray[this.x][this.y].style.backgroundPosition = "-1105px -1px";
+    MapArray[this.x][this.y].style.backgroundPosition = "-1105px -2px";
+    MapArray[this.x][this.y].style.height = `${playerSize}px`; 
+        MapArray[this.x][this.y].style.width = `${playerSize}px`; 
   }
-   //deletes the image from the cell
+   //deletes the image from the cell and gets it back to its normal size and pushes the location to eatenCoins 
    delete(){
+    MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x}px`
+    MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y}px`
+    MapArray[this.x][this.y].style.height = `${cellSizeY}px`; 
+        MapArray[this.x][this.y].style.width = `${cellSizeX}px`; 
     MapArray[this.x][this.y].style.removeProperty("background");
     MapArray[this.x][this.y].style.backgroundColor= "black";
     eatenCoins.push({x:this.x , y:this.y});
@@ -222,11 +237,13 @@ class Ghost {
       this.y = randomValue.y;
       this.x = randomValue.x;
       this.draw();
-      
     }}
   }
   //deletes the image from the cell. and if the coin is eaten the background color is black
-  
+    
+
+
+    //checks if the ghost's x and y has a coin, that is eaten
     delete(){
       var alreadyEaten = () => {
         for (var index in eatenCoins) {
@@ -236,21 +253,36 @@ class Ghost {
         }
         return false;
       };
-      
+      //back to normal x and y and size
       if (alreadyEaten()) {
+        MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x}px`; 
+        MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y}px`;
+        MapArray[this.x][this.y].style.height = `${cellSizeY}px`; 
+        MapArray[this.x][this.y].style.width = `${cellSizeX}px`; 
+        MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
+        MapArray[this.x][this.y].style.backgroundPosition = "30px 30px";
+        MapArray[this.x][this.y].style.zIndex = "0"; //change back the heirarchy
+          }else{
+        MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x}px`;
+        MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y}px`;
+        MapArray[this.x][this.y].style.height = `${cellSizeY}px`; 
+        MapArray[this.x][this.y].style.width = `${cellSizeX}px`; 
         MapArray[this.x][this.y].style.removeProperty("background");
-        MapArray[this.x][this.y].style.backgroundColor= "black";
-        eatenCoins.push({x:this.x , y:this.y});
-      }else{
-        MapArray[this.x][this.y].style.removeProperty("background");
+        MapArray[this.x][this.y].style.zIndex = "0";//change back the heirarchy
       }
     }
    
   
   //draws the ghost
   draw() {
+    MapArray[this.x][this.y].style.zIndex = "1";//makes it infront of the rest of the cells
+    MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x-playerMargin}px`  // new x and y, from where the cell will beggin
+    MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y-playerMargin-5}px`
     MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
-    MapArray[this.x][this.y].style.backgroundPosition = "-1105px -160px";
+    MapArray[this.x][this.y].style.backgroundPosition = "-1106px -158px";
+    MapArray[this.x][this.y].style.height = `${playerSize}px`; //new height and widht
+        MapArray[this.x][this.y].style.width = `${playerSize}px`;
+    
   }
 }
 
@@ -267,13 +299,15 @@ for (let x = 0; x < sizeX; x++) {
         MapArray[x][y].style.marginLeft = `${(x*cellSizeX)+marginMap}px` // y of a cell times the X cell size we want plus the margin(because of the walls), 
                                                                          //so that cell 2,3... are next to cell 1
         MapArray[x][y].style.marginTop = `${(y*cellSizeY)}px`  //x of a cell times the Y cell size we want 
+        leftUpCornerArray[x][y] = {x :x*cellSizeX+marginMap, y : y*cellSizeY} 
         MapArray[x][y].style.borderStyle = "solid";  // borderis solid
         MapArray[x][y].style.borderWidth = "0px";  //border's widht 1px
-        MapArray[x][y].style.padding = "0px";  //nopadding
+        MapArray[x][y].style.padding = "0px";  //no padding
         MapArray[x][y].style.position = "absolute"; //position is absolute
         MapArray[x][y].style.borderColor = "green";  //color of the border is red so that we can visualise them for now 
+        MapArray[x][y].style.zIndex = "0";
           if(isItPossibleToMove(x,y)){
-           // MapArray[x][y].style.backgroundColor = "red";
+           //MapArray[x][y].style.backgroundColor = "red";
           }
         mainBoard.appendChild(MapArray[x][y]);  // creating the div
     }
@@ -341,11 +375,6 @@ setInterval(function(){
   }}, speed);
   },9000)}
 
-
-
-
-
-
   //moves the character by executing the movement function with the argument direction(in which direction the pacman will move), 
   //IF the pacman location and ghost location arent the same(aka game over)
   setInterval(function() {
@@ -357,7 +386,7 @@ setInterval(function(){
 //IF the pacman location and ghost location arent the same(aka game over)
 setInterval(function () {
   if(!pacmanHasLost()){
- pacman.draw();
+  pacman.draw();
   ghost1.movement();
   ghost2.movement();
   ghost3.movement();
