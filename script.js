@@ -15,8 +15,7 @@ let leftUpCornerArray = new Array(28);//creating two dimesional array for the co
 for (let i = 0; i < leftUpCornerArray.length; i++) {
   leftUpCornerArray[i] = new Array(31);
 }
-const bigCoins = [{
-  x :1 , y :2},{}]
+const bigCoins = [{x :1 , y :3},{x :26 , y :3},{x :1 , y :23},{x :26 , y :23},]
 //all coordinates where the pacman and the ghost can be, aka the route
 var possibleCellsToMoveTo = [ 
   {x: 1, y: 1}, {x: 1, y: 2}, {x: 1, y: 3}, {x: 1, y: 4}, {x: 1, y: 5},
@@ -171,15 +170,22 @@ movement(direction){
     MapArray[this.x][this.y].style.backgroundPosition = "-1105px -2px";
     MapArray[this.x][this.y].style.height = `${playerSize}px`; 
         MapArray[this.x][this.y].style.width = `${playerSize}px`; 
+        MapArray[this.x][this.y].style.zIndex = "1";//makes it infront of the rest of the cells
   }
    //deletes the image from the cell and gets it back to its normal size and pushes the location to eatenCoins 
    delete(){
+    //because the cells for the big coins do not cover them fully the cells next to them become black
+    for(var i in bigCoins){if(bigCoins[i].x==this.x && bigCoins[i].y==this.y){
+      MapArray[this.x+1][this.y].style.background= "linear-gradient(to right, #000000 20%, transparent 20%)" ;
+      MapArray[this.x-1][this.y].style.background= "linear-gradient(to left, #000000 20%, transparent 20%)" ;
+    }}
     MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x}px`
     MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y}px`
     MapArray[this.x][this.y].style.height = `${cellSizeY}px`; 
         MapArray[this.x][this.y].style.width = `${cellSizeX}px`; 
     MapArray[this.x][this.y].style.removeProperty("background");
     MapArray[this.x][this.y].style.backgroundColor= "black";
+    MapArray[this.x][this.y].style.zIndex = "0";//change back the heirarchy
     eatenCoins.push({x:this.x , y:this.y});
   }
 }
@@ -240,11 +246,7 @@ class Ghost {
     }}
   }
   //deletes the image from the cell. and if the coin is eaten the background color is black
-    
-
-
-    //checks if the ghost's x and y has a coin, that is eaten
-    delete(){
+    delete(){//checks if the ghost's x and y has a coin that is eaten
       var alreadyEaten = () => {
         for (var index in eatenCoins) {
           if (this.x == eatenCoins[index].x && this.y == eatenCoins[index].y) {
@@ -301,13 +303,13 @@ for (let x = 0; x < sizeX; x++) {
         MapArray[x][y].style.marginTop = `${(y*cellSizeY)}px`  //x of a cell times the Y cell size we want 
         leftUpCornerArray[x][y] = {x :x*cellSizeX+marginMap, y : y*cellSizeY} 
         MapArray[x][y].style.borderStyle = "solid";  // borderis solid
-        MapArray[x][y].style.borderWidth = "0px";  //border's widht 1px
+        MapArray[x][y].style.borderWidth = "1px";  //border's widht 1px
         MapArray[x][y].style.padding = "0px";  //no padding
         MapArray[x][y].style.position = "absolute"; //position is absolute
         MapArray[x][y].style.borderColor = "green";  //color of the border is red so that we can visualise them for now 
         MapArray[x][y].style.zIndex = "0";
           if(isItPossibleToMove(x,y)){
-           //MapArray[x][y].style.backgroundColor = "red";
+           MapArray[x][y].style.backgroundColor = "red";
           }
         mainBoard.appendChild(MapArray[x][y]);  // creating the div
     }
@@ -380,7 +382,7 @@ setInterval(function(){
   setInterval(function() {
    if(!pacmanHasLost()){ 
   pacman.movement(direction);
-    } }, 50);
+    } }, 100);
 
 //setInterval for the ghosts, so that they move, and the pacman is redrawned, so that when a ghosts goes through him, he will not disappear, 
 //IF the pacman location and ghost location arent the same(aka game over)
