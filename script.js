@@ -10,12 +10,19 @@ var speed =100;// speed of ghosts in miliseconds
 const eatenCoins = [];//array with the coordinates of the eaten coins
 var playerSize=33;// what size will the cells be when there is a ghost or the pacman in them
 var playerMargin =5;// minus what margin will the cells be when there is a ghost or the pacman in them
+var itIsEatingTime = false; //is it time for the pacman to eat ghosts
+var timerForEatingGhosts =4000; //for how long will the pacman be able to eat ghosts
+
+
+const coordinatesGhostRunning = "-1416px -158px";//the blue color for a ghost
+const coordinatesGhostNormal = "-1106px -158px";//the normal color for a ghost
 
 let leftUpCornerArray = new Array(28);//creating two dimesional array for the coordinates of the left up corner of each cell
 for (let i = 0; i < leftUpCornerArray.length; i++) {
   leftUpCornerArray[i] = new Array(31);
 }
-const bigCoins = [{x :1 , y :3},{x :26 , y :3},{x :1 , y :23},{x :26 , y :23},]
+//coordinates for the four big coins
+const bigCoins = [{x :1 , y :3},{x :26 , y :3},{x :1 , y :23},{x :26 , y :23}]
 //all coordinates where the pacman and the ghost can be, aka the route
 var possibleCellsToMoveTo = [ 
   {x: 1, y: 1}, {x: 1, y: 2}, {x: 1, y: 3}, {x: 1, y: 4}, {x: 1, y: 5},
@@ -110,6 +117,15 @@ function isItPossibleToMove(a, b) {
   }
   return false;
 }
+//checks if a cell has been eaten
+function isCellEaten(a,b){
+  for (var i = 0; i < eatenCoins.length; i++) {
+    if (a == eatenCoins[i].x && b == eatenCoins[i].y) {
+      return true;
+    }
+  }
+  return false;
+}
  
 
 
@@ -163,26 +179,39 @@ movement(direction){
   }
 }
  // function that draws the pacman to its new location, and makes the cell bigger so that the pacman can fit inside 
-  draw() {
+ //because the cells for the big coins do not cover them fully the cells next to them become black 
+    draw() {
     MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x-playerMargin}px`    // new x and y, from where the cell will beggin
     MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y-playerMargin-5}px`
     MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
     MapArray[this.x][this.y].style.backgroundPosition = "-1105px -2px";
     MapArray[this.x][this.y].style.height = `${playerSize}px`; 
-        MapArray[this.x][this.y].style.width = `${playerSize}px`; 
-        MapArray[this.x][this.y].style.zIndex = "1";//makes it infront of the rest of the cells
+    MapArray[this.x][this.y].style.width = `${playerSize}px`; 
+    MapArray[this.x][this.y].style.zIndex = "1";//makes it infront of the rest of the cells
+         
+    
+          
+          // a timer for how long the pacman will eat the ghosts
+    for(var i in bigCoins){if(bigCoins[i].x==this.x && bigCoins[i].y==this.y){
+      itIsEatingTime=true;   bigCoins.splice(i, 1); 
+        setTimeout(function () {
+            itIsEatingTime=false;
+          },timerForEatingGhosts)
+      if(isCellEaten(this.x-1,this.y)){
+         MapArray[this.x+1][this.y].style.background= "linear-gradient(to right, #000000 40%, transparent 40%)" ;
+      }else if(isCellEaten(this.x+1,this.y)){MapArray[this.x-1][this.y].style.background= "linear-gradient(to left, #000000 40%, transparent 40%)" ;}
+     else{MapArray[this.x-1][this.y].style.background= "linear-gradient(to left, #000000 40%, transparent 40%)" ;
+    MapArray[this.x+1][this.y].style.background= "linear-gradient(to right, #000000 40%, transparent 40%)" ;}
+    }}  
+
   }
    //deletes the image from the cell and gets it back to its normal size and pushes the location to eatenCoins 
    delete(){
-    //because the cells for the big coins do not cover them fully the cells next to them become black
-    for(var i in bigCoins){if(bigCoins[i].x==this.x && bigCoins[i].y==this.y){
-      MapArray[this.x+1][this.y].style.background= "linear-gradient(to right, #000000 20%, transparent 20%)" ;
-      MapArray[this.x-1][this.y].style.background= "linear-gradient(to left, #000000 20%, transparent 20%)" ;
-    }}
-    MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x}px`
-    MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y}px`
+   
+    MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x}px`;
+    MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y}px`;
     MapArray[this.x][this.y].style.height = `${cellSizeY}px`; 
-        MapArray[this.x][this.y].style.width = `${cellSizeX}px`; 
+    MapArray[this.x][this.y].style.width = `${cellSizeX}px`; 
     MapArray[this.x][this.y].style.removeProperty("background");
     MapArray[this.x][this.y].style.backgroundColor= "black";
     MapArray[this.x][this.y].style.zIndex = "0";//change back the heirarchy
@@ -281,7 +310,7 @@ class Ghost {
     MapArray[this.x][this.y].style.marginLeft = `${leftUpCornerArray[this.x][this.y].x-playerMargin}px`  // new x and y, from where the cell will beggin
     MapArray[this.x][this.y].style.marginTop = `${leftUpCornerArray[this.x][this.y].y-playerMargin-5}px`
     MapArray[this.x][this.y].style.backgroundImage = "url('SpriteSheet.v1.png')";
-    MapArray[this.x][this.y].style.backgroundPosition = "-1106px -158px";
+    if(itIsEatingTime){MapArray[this.x][this.y].style.backgroundPosition = coordinatesGhostRunning;}else{MapArray[this.x][this.y].style.backgroundPosition = coordinatesGhostNormal;}
     MapArray[this.x][this.y].style.height = `${playerSize}px`; //new height and widht
         MapArray[this.x][this.y].style.width = `${playerSize}px`;
     
@@ -303,13 +332,13 @@ for (let x = 0; x < sizeX; x++) {
         MapArray[x][y].style.marginTop = `${(y*cellSizeY)}px`  //x of a cell times the Y cell size we want 
         leftUpCornerArray[x][y] = {x :x*cellSizeX+marginMap, y : y*cellSizeY} 
         MapArray[x][y].style.borderStyle = "solid";  // borderis solid
-        MapArray[x][y].style.borderWidth = "1px";  //border's widht 1px
+        MapArray[x][y].style.borderWidth = "0px";  //border's widht 1px
         MapArray[x][y].style.padding = "0px";  //no padding
         MapArray[x][y].style.position = "absolute"; //position is absolute
         MapArray[x][y].style.borderColor = "green";  //color of the border is red so that we can visualise them for now 
         MapArray[x][y].style.zIndex = "0";
           if(isItPossibleToMove(x,y)){
-           MapArray[x][y].style.backgroundColor = "red";
+          // MapArray[x][y].style.backgroundColor = "red";
           }
         mainBoard.appendChild(MapArray[x][y]);  // creating the div
     }
@@ -377,23 +406,40 @@ setInterval(function(){
   }}, speed);
   },9000)}
 
-  //moves the character by executing the movement function with the argument direction(in which direction the pacman will move), 
-  //IF the pacman location and ghost location arent the same(aka game over)
-  setInterval(function() {
-   if(!pacmanHasLost()){ 
-  pacman.movement(direction);
-    } }, 100);
+ 
+  
+ 
 
-//setInterval for the ghosts, so that they move, and the pacman is redrawned, so that when a ghosts goes through him, he will not disappear, 
-//IF the pacman location and ghost location arent the same(aka game over)
-setInterval(function () {
+//setInterval for the movement of the pacman
+var timera = setInterval(function () {  
+  pacman.draw();pacman.movement(direction); //moves the character by executing the movement function with the argument direction(in which direction the pacman will move), 
+   }, speed);
+   //setInterval for the movement of the ghosts with two layers of IFs, itIsEatingTime(the pacman will eat them), 
+   //and pacmanHasLost(the pacman X and Y are the same as one of the ghosts)
+  
+   var timer = setInterval(function () {
+  if(!itIsEatingTime){
   if(!pacmanHasLost()){
-  pacman.draw();
   ghost1.movement();
   ghost2.movement();
   ghost3.movement();
-  ghost4.movement();
-    }
+  ghost4.movement(); 
+  //there are ifs for pacmanhaslost, because if the pacman and the ghost are next to each other they will simply switch places, and the gamo wont end
+  if(pacmanHasLost()){clearInterval(timer);
+    clearInterval(timera);console.log("game lost")}
+    }else{clearInterval(timer);//stopping the setInterval
+      clearInterval(timera);console.log("game lost")}
+  }else {
+      if(!pacmanHasLost()){
+    ghost1.movement();
+    ghost2.movement();
+    ghost3.movement();
+    ghost4.movement();
+    if(pacmanHasLost()){clearInterval(timer);
+      console.log("a ghost was eaten")}
+      }else{
+        console.log("a ghost was eaten")
+      clearInterval(timer);}}
     }, speed);
 
  
