@@ -8,27 +8,10 @@ body {
   margin: auto;
   width: 548px;
   height: 600px;
-  background: url("SpriteSheet.v1.png") 6px 0px; /* cutting the sprite sheet*/
+  background: url("SpriteSheet.v1.png") 6px -1px; /* cutting the sprite sheet*/
  
 }
 
-/* .boxesOfMap{
-  display: table-cell;
-  height: 30px;
-  width: 30px;position: absolute;
-  border-style: solid;
-  display: inline-block;
-  border-color: red;
-  border-width: 1px;
-  padding: 0px;
-} */
 
-/* .pacman {
-  position: absolute;
-  
-  width: 30px;
-  height: 30px;
-  background: url("SpriteSheet.v1.png") -1097px 0px; 
-} */
 
   
